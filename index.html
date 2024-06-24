@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complex ASCII Animation</title>
+    <style>
+        body {
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1e3a8a;
+            color: #fb923c;
+        }
+        pre {
+            font-size: 1.25rem;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #f97316;
+            color: #1e3a8a;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #ea580c;
+        }
+        .controls {
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        input[type="range"] {
+            width: 200px;
+        }
+        .link-container {
+            margin-top: 2rem;
+        }
+        .link-container a {
+            color: #fb923c;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .link-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <pre id="animation"></pre>
+    <p id="frameCounter"></p>
+    <div class="controls">
+        <button id="playPauseBtn">Pause</button>
+        <input type="range" id="speedSlider" min="10" max="990" step="10" value="800">
+        <span id="speedDisplay"></span>
+    </div>
+    <audio id="backgroundMusic" loop>
+        <source src="ASCII art anima.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+    <div class="link-container">
+        <a href="https://mlearning.substack.com" target="_blank">Visit MLearning.ai on Substack</a>
+    </div>
+
+    <script>
+        const frames = [
+            `)}}})))((((($$$$$$####$»»»»»»»»»»»ZZZZ[[[[[[\\\\\\]]]]]^^^^^ooooo`,
+            `)))))((((($$$$$#####$##$»»»»»»»»»»»»»»»[[[[[[\\\\\\]]]]]^^^^^ooooovvvv`,
+            `****))))((((($$$$$#####(ZX----------------------[[[\\\\\\]]]]]^^^^^ooooovvvvvxxx`,
+            `++++****))))((((($$$$$##[#•••••••••••••••••••••••••\\]]]]]^^^^^ooooovvvvvxxxxx||`,
+            `----++++****))))((((($$$[#•••••••••••••••••••••••••\\]^^^^^ooooovvvvvxxxxx||||«`,
+            `//....----++++****))))(((^]]#≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠]^^^^^ooooovvvvvxxxxx||||««««`,
+            `777////../..-+##*xvvvvo##:::::::::oooovvvvvxxxxx||||««««°°°°»»»»`,
+            `::::77777//.-+##*xxxv##<<<<==---------ovvvvxxxxx||||««««°°°°»»»»»---`,
+            `<<<<<:77//.-+)#*ZZZ[[#########•≠≠≠≠xx||||««««°°°°»»»»»---••••••`,
+            `<<<<<:77//.-+)#*(()))))***++----..//77::<<<<<<<<<<<<<<<<<<<<<<<<<`,
+        ];
+
+        let frame = 0;
+        let speed = 200;
+        let isPlaying = true;
+        let timer;
+
+        const animationElement = document.getElementById('animation');
+        const frameCounterElement = document.getElementById('frameCounter');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+
+        function updateAnimation() {
+            animationElement.textContent = frames[frame];
+            frameCounterElement.textContent = `Frame: ${frame + 1}/${frames.length}`;
+            frame = (frame + 1) % frames.length;
+        }
+
+        function startAnimation() {
+            timer = setInterval(updateAnimation, speed);
+            backgroundMusic.play();
+        }
+
+        function stopAnimation() {
+            clearInterval(timer);
+            backgroundMusic.pause();
+        }
+
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            playPauseBtn.textContent = isPlaying ? 'Pause' : 'Play';
+            if (isPlaying) {
+                startAnimation();
+            } else {
+                stopAnimation();
+            }
+        }
+
+        function updateSpeed() {
+            speed = 1000 - speedSlider.value;
+            speedDisplay.textContent = `Speed: ${((1000 - speed) / 10).toFixed(1)}`;
+            if (isPlaying) {
+                stopAnimation();
+                startAnimation();
+            }
+        }
+
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        speedSlider.addEventListener('input', updateSpeed);
+
+        // Initial setup
+        updateAnimation();
+        startAnimation();
+        updateSpeed();
+    </script>
+</body>
+</html>
