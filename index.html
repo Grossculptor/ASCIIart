@@ -53,6 +53,22 @@
         .link-container a:hover {
             text-decoration: underline;
         }
+        #startOverlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(30, 58, 138, 0.9);
+        }
+        #startOverlay[hidden] {
+            display: none;
+        }
+        #startBtn {
+            font-family: monospace;
+            font-size: 1.5rem;
+            padding: 1rem 2rem;
+        }
     </style>
 </head>
 <body>
@@ -67,12 +83,15 @@
         <source src="ASCII art anima.mp3" type="audio/mp3">
         Your browser does not support the audio element.
     </audio>
+    <div id="startOverlay">
+        <button id="startBtn">Start animation &amp; music</button>
+    </div>
     <div class="link-container">
         <a href="https://mlearning.substack.com" target="_blank">Visit MLearning.ai on Substack</a>
     </div>
 
     <script>
-        const frames = [
+        const rawFrames = [
             `)}}})))((((($$$$$$####$»»»»»»»»»»»ZZZZ[[[[[[\\\\\\]]]]]^^^^^ooooo`,
             `)))))((((($$$$$#####$##$»»»»»»»»»»»»»»»[[[[[[\\\\\\]]]]]^^^^^ooooovvvv`,
             `****))))((((($$$$$#####(ZX----------------------[[[\\\\\\]]]]]^^^^^ooooovvvvvxxx`,
@@ -85,9 +104,13 @@
             `<<<<<:77//.-+)#*(()))))***++----..//77::<<<<<<<<<<<<<<<<<<<<<<<<<`,
         ];
 
+        // Pad every frame to the same width so the animation stays in place
+        const frameWidth = Math.max(...rawFrames.map(f => [...f].length));
+        const frames = rawFrames.map(f => f + ' '.repeat(frameWidth - [...f].length));
+
         let frame = 0;
         let speed = 200;
-        let isPlaying = true;
+        let isPlaying = false;
         let timer;
 
         const animationElement = document.getElementById('animation');
@@ -96,6 +119,8 @@
         const speedSlider = document.getElementById('speedSlider');
         const speedDisplay = document.getElementById('speedDisplay');
         const backgroundMusic = document.getElementById('backgroundMusic');
+        const startOverlay = document.getElementById('startOverlay');
+        const startBtn = document.getElementById('startBtn');
 
         function updateAnimation() {
             animationElement.textContent = frames[frame];
@@ -104,8 +129,10 @@
         }
 
         function startAnimation() {
+            clearInterval(timer);
             timer = setInterval(updateAnimation, speed);
-            backgroundMusic.play();
+            // Browsers can still refuse playback; keep the animation running either way
+            backgroundMusic.play().catch(() => {});
         }
 
         function stopAnimation() {
@@ -127,18 +154,26 @@
             speed = 1000 - speedSlider.value;
             speedDisplay.textContent = `Speed: ${((1000 - speed) / 10).toFixed(1)}`;
             if (isPlaying) {
-                stopAnimation();
-                startAnimation();
+                clearInterval(timer);
+                timer = setInterval(updateAnimation, speed);
             }
         }
 
         playPauseBtn.addEventListener('click', togglePlayPause);
         speedSlider.addEventListener('input', updateSpeed);
 
+        // Browsers block audio until the visitor interacts, so start on a click
+        startBtn.addEventListener('click', () => {
+            startOverlay.hidden = true;
+            isPlaying = true;
+            playPauseBtn.textContent = 'Pause';
+            startAnimation();
+        });
+
         // Initial setup
-        updateAnimation();
-        startAnimation();
+        playPauseBtn.textContent = 'Play';
         updateSpeed();
+        updateAnimation();
     </script>
 </body>
 </html>
